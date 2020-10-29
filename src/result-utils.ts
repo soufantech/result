@@ -60,9 +60,7 @@ export function fromPromise<F, S>(s: Promise<S>): Promise<Result<F, S>> {
  *
  * result.isSuccess() // false
  */
-export function runCatching<TSuccess>(
-  run: () => TSuccess,
-): Result<Error, TSuccess> {
+export function runCatching<S>(run: () => S): Result<Error, S> {
   try {
     return success(run());
   } catch (err) {
@@ -88,8 +86,8 @@ export function runCatching<TSuccess>(
  * const httpResponse = responseResult.getOrFail(); // throws an error because promise was rejected.
  *
  */
-export function runCatchingAsync<TSuccess>(
-  run: () => Promise<TSuccess>,
-): Promise<Result<Error, TSuccess>> {
+export function runCatchingAsync<S>(
+  run: () => Promise<S>,
+): Promise<Result<Error, S>> {
   return fromPromise(run());
 }

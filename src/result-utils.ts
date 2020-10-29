@@ -1,10 +1,10 @@
 import { Result, SuccessResult, FailureResult } from './result';
 
-export function success<S, F>(s: S): Result<F, S> {
+export function success<S, F>(s: S): Result<S, F> {
   return new SuccessResult(s);
 }
 
-export function failure<S, F>(f: F): Result<F, S> {
+export function failure<S, F>(f: F): Result<S, F> {
   return new FailureResult(f);
 }
 
@@ -20,7 +20,7 @@ export function failure<S, F>(f: F): Result<F, S> {
  *
  * const user = result.getOrFail();
  */
-export function fromPromise<F, S>(s: Promise<S>): Promise<Result<F, S>> {
+export function fromPromise<S, F>(s: Promise<S>): Promise<Result<S, F>> {
   return s.then((h) => success<S, F>(h)).catch((c) => failure<S, F>(c));
 }
 
@@ -60,7 +60,7 @@ export function fromPromise<F, S>(s: Promise<S>): Promise<Result<F, S>> {
  *
  * result.isSuccess() // false
  */
-export function runCatching<S>(run: () => S): Result<Error, S> {
+export function runCatching<S>(run: () => S): Result<S, Error> {
   try {
     return success(run());
   } catch (err) {
@@ -88,6 +88,6 @@ export function runCatching<S>(run: () => S): Result<Error, S> {
  */
 export function runCatchingAsync<S>(
   run: () => Promise<S>,
-): Promise<Result<Error, S>> {
+): Promise<Result<S, Error>> {
   return fromPromise(run());
 }

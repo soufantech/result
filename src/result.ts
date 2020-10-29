@@ -22,41 +22,41 @@ export class SuccessResult<S, F> {
     return false;
   }
 
-  mapSuccess<S2>(f: (s: S) => S2): Result<S2, F> {
-    return new SuccessResult<S2, F>(f(this.value));
+  mapSuccess<S2>(mapFn: (s: S) => S2): Result<S2, F> {
+    return new SuccessResult<S2, F>(mapFn(this.value));
   }
 
-  flatMapSuccess<S2>(f: (s: S) => Result<S2, F>): Result<S2, F> {
-    return f(this.value);
+  flatMapSuccess<S2>(mapFn: (s: S) => Result<S2, F>): Result<S2, F> {
+    return mapFn(this.value);
   }
 
-  flatMapFailure<F2>(_f: (s: F) => Result<S, F2>): Result<S, F2> {
+  flatMapFailure<F2>(_mapFn: (s: F) => Result<S, F2>): Result<S, F2> {
     return (this as unknown) as Result<S, F2>;
   }
 
-  mapFailure<F2>(_f: (s: F) => F2): Result<S, F2> {
+  mapFailure<F2>(_mapFn: (s: F) => F2): Result<S, F2> {
     return (this as unknown) as Result<S, F2>;
   }
 
-  fold<R>(onSuccess: (s: S) => R, _onFailure: (f: F) => R): R {
-    return onSuccess(this.value);
+  fold<R>(foldSuccessFn: (s: S) => R, _foldFailureFn: (f: F) => R): R {
+    return foldSuccessFn(this.value);
   }
 
-  recover(_transform: (f: F) => S): Result<S, F> {
+  recover(_recoverFn: (f: F) => S): Result<S, F> {
     return this;
   }
 
-  recoverCatching(_transform: (f: F) => S): Result<S, Error> {
+  recoverCatching(_recoverFn: (f: F) => S): Result<S, Error> {
     return (this as unknown) as Result<S, Error>;
   }
 
-  onSuccess(f: (s: S) => void): Result<S, F> {
-    f(this.value);
+  onSuccess(callbackFn: (s: S) => void): Result<S, F> {
+    callbackFn(this.value);
 
     return this;
   }
 
-  onFailure(_f: (failure: F) => void): Result<S, F> {
+  onFailure(_callbackFn: (f: F) => void): Result<S, F> {
     return this;
   }
 
@@ -76,11 +76,11 @@ export class SuccessResult<S, F> {
     return this.value;
   }
 
-  getOrElse<S2>(_onFailure: (f: F) => S2): S2 | S {
+  getOrElse<S2>(_elseFn: (f: F) => S2): S2 | S {
     return this.value;
   }
 
-  getOrThrow(_transform?: (e: F) => Error): S {
+  getOrThrow(_transformFn?: (e: F) => Error): S {
     return this.value;
   }
 }
@@ -100,42 +100,42 @@ export class FailureResult<S, F> {
     return true;
   }
 
-  mapSuccess<S2>(_f: (s: S) => S2): Result<S2, F> {
+  mapSuccess<S2>(_mapFn: (s: S) => S2): Result<S2, F> {
     return (this as unknown) as Result<S2, F>;
   }
 
-  flatMapSuccess<S2>(_f: (s: S) => Result<S2, F>): Result<S2, F> {
+  flatMapSuccess<S2>(_mapFn: (s: S) => Result<S2, F>): Result<S2, F> {
     return (this as unknown) as Result<S2, F>;
   }
 
-  flatMapFailure<F2>(f: (s: F) => Result<S, F2>): Result<S, F2> {
-    return f(this.value);
+  flatMapFailure<F2>(mapFn: (s: F) => Result<S, F2>): Result<S, F2> {
+    return mapFn(this.value);
   }
 
-  mapFailure<F2>(f: (s: F) => F2): Result<S, F2> {
-    return new FailureResult(f(this.value));
+  mapFailure<F2>(mapFn: (s: F) => F2): Result<S, F2> {
+    return new FailureResult(mapFn(this.value));
   }
 
-  fold<R>(_onSuccess: (s: S) => R, onFailure: (f: F) => R): R {
-    return onFailure(this.value);
+  fold<R>(_foldSuccessFn: (s: S) => R, foldFailureFn: (f: F) => R): R {
+    return foldFailureFn(this.value);
   }
 
-  recover(transform: (f: F) => S): Result<S, F> {
-    return new SuccessResult(transform(this.value));
+  recover(recoverFn: (f: F) => S): Result<S, F> {
+    return new SuccessResult(recoverFn(this.value));
   }
 
-  recoverCatching(transform: (f: F) => S): Result<S, Error> {
+  recoverCatching(recoverFn: (f: F) => S): Result<S, Error> {
     return runCatching<S>(() => {
-      return transform(this.value);
+      return recoverFn(this.value);
     });
   }
 
-  onSuccess(_f: (s: S) => void): Result<S, F> {
+  onSuccess(_callbackFn: (s: S) => void): Result<S, F> {
     return this;
   }
 
-  onFailure(f: (failure: F) => void): Result<S, F> {
-    f(this.value);
+  onFailure(callbackFn: (f: F) => void): Result<S, F> {
+    callbackFn(this.value);
 
     return this;
   }
@@ -156,11 +156,11 @@ export class FailureResult<S, F> {
     return undefined;
   }
 
-  getOrElse<S2>(onFailure: (f: F) => S2): S2 | S {
-    return onFailure(this.value);
+  getOrElse<S2>(elseFn: (f: F) => S2): S2 | S {
+    return elseFn(this.value);
   }
 
-  getOrThrow(transform?: (e: F) => Error): S {
-    throw transform ? transform(this.value) : this.value;
+  getOrThrow(transformFn?: (e: F) => Error): S {
+    throw transformFn ? transformFn(this.value) : this.value;
   }
 }

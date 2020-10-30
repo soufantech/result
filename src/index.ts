@@ -1,2 +1,2 @@
-export { Result, isResult, SuccessResult, FailureResult } from './result';
+export { Result, SuccessResult, FailureResult } from './result';
 export * from './result-utils';

@@ -3,10 +3,6 @@ import { runCatching } from './result-utils';
 
 export type Result<S, F> = SuccessResult<S, F> | FailureResult<S, F>;
 
-export function isResult(value: unknown): value is Result<unknown, unknown> {
-  return value instanceof SuccessResult || value instanceof FailureResult;
-}
-
 export class SuccessResult<S, F> {
   private value: S;
 

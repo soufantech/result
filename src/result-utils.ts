@@ -1,12 +1,4 @@
-import { Result, SuccessResult, FailureResult } from './result';
-
-export function success<S, F>(s: S): Result<S, F> {
-  return new SuccessResult(s);
-}
-
-export function failure<S, F>(f: F): Result<S, F> {
-  return new FailureResult(f);
-}
+import { Result, failure, success } from './result';
 
 /**
  * Converts the result of a promise into a result.

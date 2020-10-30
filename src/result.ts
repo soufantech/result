@@ -3,11 +3,18 @@ import { runCatching } from './result-utils';
 
 export type Result<S, F> = SuccessResult<S, F> | FailureResult<S, F>;
 
+/**
+ * @private
+ */
 export class SuccessResult<S, F> {
   private value: S;
 
-  constructor(success: S) {
+  private constructor(success: S) {
     this.value = success;
+  }
+
+  static create<S, F>(success: S): Result<S, F> {
+    return new SuccessResult(success);
   }
 
   isSuccess(): this is SuccessResult<S, F> {
@@ -84,8 +91,12 @@ export class SuccessResult<S, F> {
 export class FailureResult<S, F> {
   private value: F;
 
-  constructor(failure: F) {
+  private constructor(failure: F) {
     this.value = failure;
+  }
+
+  static create<S, F>(failure: F): Result<S, F> {
+    return new FailureResult(failure);
   }
 
   isSuccess(): this is SuccessResult<S, F> {
@@ -117,7 +128,7 @@ export class FailureResult<S, F> {
   }
 
   recover(recoverFn: (f: F) => S): Result<S, F> {
-    return new SuccessResult(recoverFn(this.value));
+    return SuccessResult.create(recoverFn(this.value));
   }
 
   recoverCatching(recoverFn: (f: F) => S): Result<S, Error> {
@@ -160,3 +171,6 @@ export class FailureResult<S, F> {
     throw transformFn ? transformFn(this.value) : this.value;
   }
 }
+
+export const success = SuccessResult.create;
+export const failure = FailureResult.create;

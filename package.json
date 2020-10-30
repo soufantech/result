@@ -1,6 +1,6 @@
 {
   "name": "@soufantech/result",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A feature-rich Result type for TypeScript and JavaScript",
   "keywords": [
     "result",

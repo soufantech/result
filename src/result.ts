@@ -1,180 +1,176 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { runCatching } from './result-utils';
 
-export type Result<TFailure, TSuccess> =
-  | SuccessResult<TFailure, TSuccess>
-  | FailureResult<TFailure, TSuccess>;
+export type Result<S, F> = SuccessResult<S, F> | FailureResult<S, F>;
 
-export function isResult(value: unknown): value is Result<unknown, unknown> {
-  return value instanceof SuccessResult || value instanceof FailureResult;
-}
+/**
+ * @private
+ */
+export class SuccessResult<S, F> {
+  private value: S;
 
-export class SuccessResult<TFailure, TSuccess> {
-  private value: TSuccess;
-
-  constructor(success: TSuccess) {
+  private constructor(success: S) {
     this.value = success;
   }
 
-  isSuccess(): this is SuccessResult<TFailure, TSuccess> {
+  static create<S, F>(success: S): Result<S, F> {
+    return new SuccessResult(success);
+  }
+
+  isSuccess(): this is SuccessResult<S, F> {
     return true;
   }
 
-  isFailure(): this is FailureResult<TFailure, TSuccess> {
+  isFailure(): this is FailureResult<S, F> {
     return false;
   }
 
-  mapSuccess<S>(f: (s: TSuccess) => S): Result<TFailure, S> {
-    return new SuccessResult<TFailure, S>(f(this.value));
+  mapSuccess<S2>(mapFn: (s: S) => S2): Result<S2, F> {
+    return new SuccessResult<S2, F>(mapFn(this.value));
   }
 
-  flatMapSuccess<S>(
-    f: (s: TSuccess) => Result<TFailure, S>,
-  ): Result<TFailure, S> {
-    return f(this.value);
+  flatMapSuccess<S2>(mapFn: (s: S) => Result<S2, F>): Result<S2, F> {
+    return mapFn(this.value);
   }
 
-  flatMapFailure<F>(
-    _f: (s: TFailure) => Result<F, TSuccess>,
-  ): Result<F, TSuccess> {
-    return (this as unknown) as Result<F, TSuccess>;
+  flatMapFailure<F2>(_mapFn: (s: F) => Result<S, F2>): Result<S, F2> {
+    return (this as unknown) as Result<S, F2>;
   }
 
-  mapFailure<F>(_f: (s: TFailure) => F): Result<F, TSuccess> {
-    return (this as unknown) as Result<F, TSuccess>;
+  mapFailure<F2>(_mapFn: (s: F) => F2): Result<S, F2> {
+    return (this as unknown) as Result<S, F2>;
   }
 
-  fold<R>(onSuccess: (s: TSuccess) => R, _onFailure: (f: TFailure) => R): R {
-    return onSuccess(this.value);
+  fold<R>(foldSuccessFn: (s: S) => R, _foldFailureFn: (f: F) => R): R {
+    return foldSuccessFn(this.value);
   }
 
-  recover(_transform: (f: TFailure) => TSuccess): Result<TFailure, TSuccess> {
+  recover(_recoverFn: (f: F) => S): Result<S, F> {
     return this;
   }
 
-  recoverCatching(
-    _transform: (f: TFailure) => TSuccess,
-  ): Result<Error, TSuccess> {
-    return (this as unknown) as Result<Error, TSuccess>;
+  recoverCatching(_recoverFn: (f: F) => S): Result<S, Error> {
+    return (this as unknown) as Result<S, Error>;
   }
 
-  onSuccess(f: (s: TSuccess) => void): Result<TFailure, TSuccess> {
-    f(this.value);
+  onSuccess(callbackFn: (s: S) => void): Result<S, F> {
+    callbackFn(this.value);
 
     return this;
   }
 
-  onFailure(_f: (failure: TFailure) => void): Result<TFailure, TSuccess> {
+  onFailure(_callbackFn: (f: F) => void): Result<S, F> {
     return this;
   }
 
-  get(): TSuccess {
+  get(): S {
     return this.value;
   }
 
-  getOrDefault<S>(_defaultValue: S): TSuccess | S {
+  getOrDefault<S2>(_defaultValue: S2): S | S2 {
     return this.value;
   }
 
-  getOrNull(): TSuccess | null {
+  getOrNull(): S | null {
     return this.value;
   }
 
-  getOrUndefined(): TSuccess | undefined {
+  getOrUndefined(): S | undefined {
     return this.value;
   }
 
-  getOrElse<S>(_onFailure: (f: TFailure) => S): S | TSuccess {
+  getOrElse<S2>(_elseFn: (f: F) => S2): S2 | S {
     return this.value;
   }
 
-  getOrThrow(_transform?: (e: TFailure) => Error): TSuccess {
+  getOrThrow(_transformFn?: (e: F) => Error): S {
     return this.value;
   }
 }
 
-export class FailureResult<TFailure, TSuccess> {
-  private value: TFailure;
+export class FailureResult<S, F> {
+  private value: F;
 
-  constructor(failure: TFailure) {
+  private constructor(failure: F) {
     this.value = failure;
   }
 
-  isSuccess(): this is SuccessResult<TFailure, TSuccess> {
+  static create<S, F>(failure: F): Result<S, F> {
+    return new FailureResult(failure);
+  }
+
+  isSuccess(): this is SuccessResult<S, F> {
     return false;
   }
 
-  isFailure(): this is FailureResult<TFailure, TSuccess> {
+  isFailure(): this is FailureResult<S, F> {
     return true;
   }
 
-  mapSuccess<S>(_f: (s: TSuccess) => S): Result<TFailure, S> {
-    return (this as unknown) as Result<TFailure, S>;
+  mapSuccess<S2>(_mapFn: (s: S) => S2): Result<S2, F> {
+    return (this as unknown) as Result<S2, F>;
   }
 
-  flatMapSuccess<S>(
-    _f: (s: TSuccess) => Result<TFailure, S>,
-  ): Result<TFailure, S> {
-    return (this as unknown) as Result<TFailure, S>;
+  flatMapSuccess<S2>(_mapFn: (s: S) => Result<S2, F>): Result<S2, F> {
+    return (this as unknown) as Result<S2, F>;
   }
 
-  flatMapFailure<F>(
-    f: (s: TFailure) => Result<F, TSuccess>,
-  ): Result<F, TSuccess> {
-    return f(this.value);
+  flatMapFailure<F2>(mapFn: (s: F) => Result<S, F2>): Result<S, F2> {
+    return mapFn(this.value);
   }
 
-  mapFailure<F>(f: (s: TFailure) => F): Result<F, TSuccess> {
-    return new FailureResult(f(this.value));
+  mapFailure<F2>(mapFn: (s: F) => F2): Result<S, F2> {
+    return new FailureResult(mapFn(this.value));
   }
 
-  fold<R>(_onSuccess: (s: TSuccess) => R, onFailure: (f: TFailure) => R): R {
-    return onFailure(this.value);
+  fold<R>(_foldSuccessFn: (s: S) => R, foldFailureFn: (f: F) => R): R {
+    return foldFailureFn(this.value);
   }
 
-  recover(transform: (f: TFailure) => TSuccess): Result<TFailure, TSuccess> {
-    return new SuccessResult(transform(this.value));
+  recover(recoverFn: (f: F) => S): Result<S, F> {
+    return SuccessResult.create(recoverFn(this.value));
   }
 
-  recoverCatching(
-    transform: (f: TFailure) => TSuccess,
-  ): Result<Error, TSuccess> {
-    return runCatching<TSuccess>(() => {
-      return transform(this.value);
+  recoverCatching(recoverFn: (f: F) => S): Result<S, Error> {
+    return runCatching<S>(() => {
+      return recoverFn(this.value);
     });
   }
 
-  onSuccess(_f: (s: TSuccess) => void): Result<TFailure, TSuccess> {
+  onSuccess(_callbackFn: (s: S) => void): Result<S, F> {
     return this;
   }
 
-  onFailure(f: (failure: TFailure) => void): Result<TFailure, TSuccess> {
-    f(this.value);
+  onFailure(callbackFn: (f: F) => void): Result<S, F> {
+    callbackFn(this.value);
 
     return this;
   }
 
-  get(): TFailure {
+  get(): F {
     return this.value;
   }
 
-  getOrDefault<S>(defaultValue: S): TSuccess | S {
+  getOrDefault<S2>(defaultValue: S2): S | S2 {
     return defaultValue;
   }
 
-  getOrNull(): TSuccess | null {
+  getOrNull(): S | null {
     return null;
   }
 
-  getOrUndefined(): TSuccess | undefined {
+  getOrUndefined(): S | undefined {
     return undefined;
   }
 
-  getOrElse<S>(onFailure: (f: TFailure) => S): S | TSuccess {
-    return onFailure(this.value);
+  getOrElse<S2>(elseFn: (f: F) => S2): S2 | S {
+    return elseFn(this.value);
   }
 
-  getOrThrow(transform?: (e: TFailure) => Error): TSuccess {
-    throw transform ? transform(this.value) : this.value;
+  getOrThrow(transformFn?: (e: F) => Error): S {
+    throw transformFn ? transformFn(this.value) : this.value;
   }
 }
+
+export const success = SuccessResult.create;
+export const failure = FailureResult.create;

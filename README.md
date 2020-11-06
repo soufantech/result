@@ -52,7 +52,7 @@ yarn add @soufantech/result
 ...or, optionally, with npm:
 
 ```console
-npm -i @soufantech/result
+npm install @soufantech/result
 ```
 
 ## TypeScript and JavaScript support

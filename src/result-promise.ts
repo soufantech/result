@@ -112,6 +112,22 @@ export class ResultPromise<S, F> implements PromiseLike<Result<S, F>> {
     );
   }
 
+  flatMapSuccessCatching<S2, E = Error>(
+    mapFn: (s: S) => Result<S2, F | E>,
+  ): ResultPromise<S2, F | E> {
+    return new ResultPromise(
+      this.promise.then((r) => r.flatMapSuccessCatching(mapFn)),
+    );
+  }
+
+  flatMapFailureCatching<F2, E = Error>(
+    mapFn: (f: F) => Result<S, F2>,
+  ): ResultPromise<S, F2 | E> {
+    return new ResultPromise(
+      this.promise.then((r) => r.flatMapFailureCatching(mapFn)),
+    );
+  }
+
   flatMapSuccess<S2>(mapFn: (s: S) => Result<S2, F>): ResultPromise<S2, F> {
     return new ResultPromise(this.promise.then((r) => r.flatMapSuccess(mapFn)));
   }

@@ -36,6 +36,22 @@ export class ResultPromise<S, F> implements PromiseLike<Result<S, F>> {
     return new ResultPromise(this.promise.then((r) => r.mapSuccess(mapFn)));
   }
 
+  mapSuccessCatching<S2, E = Error>(
+    mapFn: (s: S) => S2,
+  ): ResultPromise<S2, F | E> {
+    return new ResultPromise(
+      this.promise.then((r) => r.mapSuccessCatching(mapFn)),
+    );
+  }
+
+  mapFailureCatching<F2, E = Error>(
+    mapFn: (s: F) => F2,
+  ): ResultPromise<S, F2 | E> {
+    return new ResultPromise(
+      this.promise.then((r) => r.mapFailureCatching(mapFn)),
+    );
+  }
+
   mapSuccessAsync<S2>(mapFn: (s: S) => PromiseLike<S2>): ResultPromise<S2, F> {
     return new ResultPromise(
       this.promise.then((r) => r.mapSuccessAsync(mapFn)),

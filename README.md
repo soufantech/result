@@ -45,13 +45,13 @@ Although they diverge in several aspects, the `Result` implementation of this mo
 
 In your project folder, run:
 
-```shell
+```console
 yarn add @soufantech/result
 ```
 
 ...or, optionally, with npm:
 
-```shell
+```console
 npm -i @soufantech/result
 ```
 

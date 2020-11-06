@@ -1,4 +1,4 @@
-import { success, failure } from '..';
+import { success, failure } from '../..';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -13,8 +13,9 @@ function containerize<T>(value: T): Container<T> {
   return { value };
 }
 
-test('flatMapSuccess returns the Result instance returned by the mapping function.', () => {
-  const result = success(771)
+test('flatMapSuccess returns the Result instance returned by the mapping function.', async () => {
+  const result = await success(771)
+    .toResultPromise()
     .flatMapSuccess((n) => success(f(String(n))))
     .flatMapSuccess((s) => success(containerize(g(s))));
 
@@ -22,8 +23,9 @@ test('flatMapSuccess returns the Result instance returned by the mapping functio
   expect(result.get()).toStrictEqual({ value: 'g(f(771))' });
 });
 
-test('flatMapSuccess forwards a failure result.', () => {
-  const result = success<number, Error>(771)
+test('flatMapSuccess forwards a failure result.', async () => {
+  const result = await success<number, Error>(771)
+    .toResultPromise()
     .flatMapSuccess((n) => success(f(String(n))))
     .flatMapSuccess((s) => failure<string, Error>(new Error(s)))
     .flatMapSuccess((s) => success(containerize(g(s))));

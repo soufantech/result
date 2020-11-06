@@ -1,4 +1,4 @@
-import { success, failure } from '..';
+import { success, failure } from '../..';
 
 test('isFailure returns true when invoked on failure result.', () => {
   const result = failure('nay');

@@ -1,4 +1,4 @@
-import { success, failure } from '..';
+import { success, failure } from '../..';
 
 class SorryError extends Error {
   constructor(err: Error) {

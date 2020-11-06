@@ -1,4 +1,4 @@
-import { success, failure } from '..';
+import { success, failure } from '../..';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -7,17 +7,23 @@ beforeEach(() => {
 const f = jest.fn<string, [string]>((s: string) => `f(${s})`);
 const g = jest.fn<string, [string]>((s: string) => `g(${s})`);
 
-test('mapSuccess returns mapped value of success result.', () => {
-  const result = success('ay').mapSuccess(f).mapSuccess(g);
+test('mapSuccess returns mapped value of success result.', async () => {
+  const result = await success('ay')
+    .toResultPromise()
+    .mapSuccess(f)
+    .mapSuccess(g);
 
   expect(result.isSuccess()).toBe(true);
   expect(result.get()).toBe('g(f(ay))');
 });
 
-test('mapSuccess forwards a failure result.', () => {
+test('mapSuccess forwards a failure result.', async () => {
   const error = new Error('nay');
 
-  const result = failure<string, Error>(error).mapSuccess(f).mapSuccess(g);
+  const result = await failure<string, Error>(error)
+    .toResultPromise()
+    .mapSuccess(f)
+    .mapSuccess(g);
 
   expect(result.isFailure()).toBe(true);
   expect(result.get()).toBe(error);

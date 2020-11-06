@@ -1,4 +1,4 @@
-import { success, failure } from '..';
+import { success, failure } from '../..';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -10,8 +10,9 @@ class TopTopError extends TopError {}
 const f = jest.fn<string, [string]>((s: string) => `f(${s})`);
 const g = jest.fn<string, [string]>((s: string) => `g(${s})`);
 
-test('mapFailure returns mapped value of failure result.', () => {
-  const result = failure('nay')
+test('mapFailure returns mapped value of failure result.', async () => {
+  const result = await failure('nay')
+    .toResultPromise()
     .mapFailure((msg) => new Error(msg))
     .mapFailure((e) => new TopError(f(e.message)))
     .mapFailure((e) => new TopTopError(g(e.message)));
@@ -28,8 +29,9 @@ test('mapFailure returns mapped value of failure result.', () => {
   }
 });
 
-test('mapFailure forwards a success result.', () => {
-  const result = success<string, string>('ay')
+test('mapFailure forwards a success result.', async () => {
+  const result = await success<string, string>('ay')
+    .toResultPromise()
     .mapFailure((msg) => new Error(msg))
     .mapFailure((e) => new TopError(f(e.message)))
     .mapFailure((e) => new TopTopError(g(e.message)));

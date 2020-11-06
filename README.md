@@ -45,14 +45,14 @@ Although they diverge in several aspects, the `Result` implementation of this mo
 
 In your project folder, run:
 
-```shell
+```console
 yarn add @soufantech/result
 ```
 
 ...or, optionally, with npm:
 
-```shell
-npm -i @soufantech/result
+```console
+npm install @soufantech/result
 ```
 
 ## TypeScript and JavaScript support

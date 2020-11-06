@@ -52,11 +52,11 @@ export function fromPromise<S, F>(s: Promise<S>): Promise<Result<S, F>> {
  *
  * result.isSuccess() // false
  */
-export function runCatching<S>(run: () => S): Result<S, Error> {
+export function runCatching<S, F = Error>(run: () => S): Result<S, F> {
   try {
-    return success(run());
+    return success<S, F>(run());
   } catch (err) {
-    return failure(err);
+    return failure<S, F>(err);
   }
 }
 

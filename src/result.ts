@@ -41,6 +41,16 @@ export class SuccessResult<S, F> {
     return (this as unknown) as Result<S, F2>;
   }
 
+  mapSuccessCatching<S2, E = Error>(mapFn: (s: S) => S2): Result<S2, F | E> {
+    return runCatching<S2, E>(() => {
+      return mapFn(this.value);
+    });
+  }
+
+  mapFailureCatching<F2, E = Error>(_mapFn: (s: F) => F2): Result<S, F2 | E> {
+    return (this as unknown) as Result<S, F2 | E>;
+  }
+
   flatMapSuccess<S2>(mapFn: (s: S) => Result<S2, F>): Result<S2, F> {
     return mapFn(this.value);
   }
@@ -175,6 +185,18 @@ export class FailureResult<S, F> {
 
   mapFailure<F2>(mapFn: (s: F) => F2): Result<S, F2> {
     return new FailureResult<S, F2>(mapFn(this.value));
+  }
+
+  mapSuccessCatching<S2, E = Error>(_mapFn: (s: S) => S2): Result<S2, F | E> {
+    return (this as unknown) as Result<S2, F | E>;
+  }
+
+  mapFailureCatching<F2, E = Error>(mapFn: (s: F) => F2): Result<S, F2 | E> {
+    try {
+      return failure<S, F2>(mapFn(this.value));
+    } catch (err) {
+      return failure<S, E>(err);
+    }
   }
 
   flatMapSuccess<S2>(_mapFn: (s: S) => Result<S2, F>): Result<S2, F> {

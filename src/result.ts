@@ -109,6 +109,22 @@ export class SuccessResult<S, F> {
     return new ResultPromise<S, F2 | E>((this as unknown) as Result<S, F2>);
   }
 
+  flatMapSuccessCatching<S2, E = Error>(
+    mapFn: (s: S) => Result<S2, F | E>,
+  ): Result<S2, F | E> {
+    try {
+      return mapFn(this.value);
+    } catch (err) {
+      return failure<S2, E>(err);
+    }
+  }
+
+  flatMapFailureCatching<F2, E = Error>(
+    _mapFn: (f: F) => Result<S, F2>,
+  ): Result<S, F2 | E> {
+    return (this as unknown) as Result<S, F2 | E>;
+  }
+
   toResultPromise(): ResultPromise<S, F> {
     return new ResultPromise<S, F>(this);
   }
@@ -255,6 +271,22 @@ export class FailureResult<S, F> {
         (e) => new FailureResult<S, F2 | E>(e),
       ),
     );
+  }
+
+  flatMapSuccessCatching<S2, E = Error>(
+    _mapFn: (s: S) => Result<S2, F | E>,
+  ): Result<S2, F | E> {
+    return (this as unknown) as Result<S2, F | E>;
+  }
+
+  flatMapFailureCatching<F2, E = Error>(
+    mapFn: (f: F) => Result<S, F2>,
+  ): Result<S, F2 | E> {
+    try {
+      return mapFn(this.value);
+    } catch (err) {
+      return failure<S, E>(err);
+    }
   }
 
   toResultPromise(): ResultPromise<S, F> {

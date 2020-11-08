@@ -14,11 +14,7 @@ test('onFailure is called on a failure Result.', () => {
   const result = failure(err).onFailure(failureCb);
 
   expect(result.isFailure()).toBe(true);
-
-  if (result.isFailure()) {
-    expect(result.get().message).toBe('nay');
-  }
-
+  expect((result.get() as Error).message).toBe('nay');
   expect(failureCb).toHaveBeenCalledWith(err);
 });
 
@@ -26,10 +22,6 @@ test('onFailure is NOT called on a success Result.', () => {
   const result = success<string, Error>('ay').onFailure(failureCb);
 
   expect(result.isSuccess()).toBe(true);
-
-  if (result.isSuccess()) {
-    expect(result.get()).toBe('ay');
-  }
-
+  expect(result.get()).toBe('ay');
   expect(failureCb).not.toHaveBeenCalled();
 });

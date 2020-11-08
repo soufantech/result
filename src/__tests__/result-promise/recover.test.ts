@@ -26,7 +26,6 @@ test('recover returns the value returned from the transform function in a new Re
     .recover(recoverer);
 
   expect(result.isSuccess()).toBe(true);
-
   expect(result.getOrThrow()).toBe('recovered(nay)');
   expect(recoverer).toHaveBeenCalledWith(err);
 });

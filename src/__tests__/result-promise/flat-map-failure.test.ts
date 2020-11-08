@@ -17,11 +17,8 @@ test('flatMapFailure returns the Result instance returned by the mapping functio
     .flatMapFailure((e) => failure(new BError(g(String(e.message)))));
 
   expect(result.isFailure()).toBe(true);
-
-  if (result.isFailure()) {
-    expect(result.get()).toBeInstanceOf(BError);
-    expect(result.get().message).toBe('g(f(nay))');
-  }
+  expect(result.get()).toBeInstanceOf(BError);
+  expect((result.get() as Error).message).toBe('g(f(nay))');
 });
 
 test('flatMapFailure forwards a success result.', async () => {
@@ -31,11 +28,7 @@ test('flatMapFailure forwards a success result.', async () => {
     .flatMapFailure((e) => failure(new BError(g(String(e.message)))));
 
   expect(result.isSuccess()).toBe(true);
-
-  if (result.isSuccess()) {
-    expect(result.get()).toBe('ay');
-  }
-
+  expect(result.get()).toBe('ay');
   expect(f).not.toHaveBeenCalled();
   expect(g).not.toHaveBeenCalled();
 });

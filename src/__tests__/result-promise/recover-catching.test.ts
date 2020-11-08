@@ -32,7 +32,6 @@ test('recoverCatching returns the value returned from the transform function in 
     .recoverCatching(recoverer);
 
   expect(result.isSuccess()).toBe(true);
-
   expect(result.getOrThrow()).toBe('recovered(nay)');
   expect(recoverer).toHaveBeenCalledWith(err);
 });
@@ -45,10 +44,8 @@ test('recoverCatching returns a failure Result with the Error instance thrown by
     .recoverCatching(throwingRecoverer);
 
   expect(result.isFailure()).toBe(true);
-
   expect(() => {
     result.getOrThrow();
   }).toThrowError(RecoveringError);
-
   expect(throwingRecoverer).toHaveBeenCalledWith(err);
 });

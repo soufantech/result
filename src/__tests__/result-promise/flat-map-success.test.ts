@@ -31,14 +31,8 @@ test('flatMapSuccess forwards a failure result.', async () => {
     .flatMapSuccess((s) => success(containerize(g(s))));
 
   expect(result.isFailure()).toBe(true);
-
-  expect.assertions(5);
-
-  if (result.isFailure()) {
-    expect(result.get()).toBeInstanceOf(Error);
-    expect(result.get().message).toBe('f(771)');
-  }
-
+  expect(result.get()).toBeInstanceOf(Error);
+  expect((result.get() as Error).message).toBe('f(771)');
   expect(g).not.toHaveBeenCalled();
   expect(f).toHaveBeenCalledWith('771');
 });

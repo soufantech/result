@@ -41,12 +41,8 @@ test('flatMapSuccessCatching forwards a failure result.', () => {
 
   expect(result.isFailure()).toBe(true);
 
-  expect.assertions(5);
-
-  if (result.isFailure()) {
-    expect(result.get()).toBeInstanceOf(Error);
-    expect(result.get().message).toBe('f(771)');
-  }
+  expect(result.get()).toBeInstanceOf(Error);
+  expect((result.get() as Error).message).toBe('f(771)');
 
   expect(g).not.toHaveBeenCalled();
   expect(f).toHaveBeenCalledWith('771');

@@ -16,16 +16,11 @@ test('mapFailure returns mapped value of failure result.', () => {
     .mapFailure((e) => new TopError(f(e.message)))
     .mapFailure((e) => new TopTopError(g(e.message)));
 
-  expect.assertions(3);
+  const err = result.get() as Error;
+
   expect(result.isFailure()).toBe(true);
-
-  // This conditional is here just to satisfy the TS typesystem checks.
-  if (result.isFailure()) {
-    const err = result.get();
-
-    expect(err.message).toBe('g(f(nay))');
-    expect(err).toBeInstanceOf(TopTopError);
-  }
+  expect(err.message).toBe('g(f(nay))');
+  expect(err).toBeInstanceOf(TopTopError);
 });
 
 test('mapFailure forwards a success result.', () => {
@@ -34,17 +29,8 @@ test('mapFailure forwards a success result.', () => {
     .mapFailure((e) => new TopError(f(e.message)))
     .mapFailure((e) => new TopTopError(g(e.message)));
 
-  expect.assertions(4);
-
   expect(result.isSuccess()).toBe(true);
-
-  // This conditional is here just to satisfy the TS typesystem checks.
-  if (result.isSuccess()) {
-    const ok = result.get();
-
-    expect(ok).toBe('ay');
-  }
-
+  expect(result.get()).toBe('ay');
   expect(f).not.toHaveBeenCalled();
   expect(g).not.toHaveBeenCalled();
 });

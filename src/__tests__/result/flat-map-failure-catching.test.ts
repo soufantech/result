@@ -20,11 +20,8 @@ test('flatMapFailureCatching returns the Result instance returned by the mapping
     );
 
   expect(result.isFailure()).toBe(true);
-
-  if (result.isFailure()) {
-    expect(result.get()).toBeInstanceOf(BError);
-    expect(result.get().message).toBe('g(f(nay))');
-  }
+  expect(result.get()).toBeInstanceOf(BError);
+  expect((result.get() as Error).message).toBe('g(f(nay))');
 });
 
 test('flatMapFailureCatching returns the Result instance returned by the mapping function catching.', () => {
@@ -37,11 +34,8 @@ test('flatMapFailureCatching returns the Result instance returned by the mapping
     );
 
   expect(result.isFailure()).toBe(true);
-
-  if (result.isFailure()) {
-    expect(result.get()).toBeInstanceOf(BError);
-    expect(result.get().message).toBe('g(f(nay))');
-  }
+  expect(result.get()).toBeInstanceOf(BError);
+  expect((result.get() as Error).message).toBe('g(f(nay))');
 });
 
 test('flatMapFailureCatching forwards a success result.', () => {
@@ -50,11 +44,7 @@ test('flatMapFailureCatching forwards a success result.', () => {
     .flatMapFailureCatching((e) => failure(new BError(g(String(e.message)))));
 
   expect(result.isSuccess()).toBe(true);
-
-  if (result.isSuccess()) {
-    expect(result.get()).toBe('ay');
-  }
-
+  expect(result.get()).toBe('ay');
   expect(f).not.toHaveBeenCalled();
   expect(g).not.toHaveBeenCalled();
 });

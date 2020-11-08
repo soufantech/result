@@ -27,7 +27,6 @@ test('mapSuccess forwards a failure result.', async () => {
 
   expect(result.isFailure()).toBe(true);
   expect(result.get()).toBe(error);
-
   expect(f).not.toHaveBeenCalled();
   expect(g).not.toHaveBeenCalled();
 });

@@ -40,6 +40,7 @@ Although they diverge in several aspects, the `Result` implementation of this mo
 - [API](#api)
 - [Contributing](#contributing)
 - [Featured](#featured)
+- [Related projects](#related-projects)
 
 ## Installation
 
@@ -70,6 +71,12 @@ If you wish to contribute to this project **in any way**, please open an issue o
 ## Featured
 
 If you wrote an article on this project or mentioned it in any other publication of your authoring, please, open an issue to let us know so we can reference back your publication here.
+
+## Related projects
+
+- https://github.com/kittinunf/Result - Kotlin
+- https://github.com/antitypical/Result - Swift
+- https://gigobyte.github.io/purify/adts/Either - TypeScript
 
 ---
 

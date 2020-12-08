@@ -101,7 +101,7 @@ const res = runCatching(() => {
 });
 ```
 
-There is also an async version of `runCatching` called `runCatchingAsync`. See the section on [Streamlined async flow](#async-mappers-and-the-streamlined-async-flow) for more information on async operations.
+There is also an async version of `runCatching` called `runCatchingAsync`. See the section on [Streamlined async flow](#streamlined-async-flow) for more information on async operations.
 
 ### Unboxing
 
@@ -185,7 +185,7 @@ res.fold(
 ); // returns "STRING_CONTAINS_NON_ALPHABETIC_CHARACTERS"
 ```
 
-`fold` is conveniently used as a mapping function to convert from one `Result` type into another (see the section on [mapping](###mapping) for mapping functions):
+`fold` is conveniently used as a mapping function to convert from one `Result` type into another (see the section on [Mapping](#mapping) for mapping functions):
 
 ```ts
 // Type of res1 is `Result<number, string>`

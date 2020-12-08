@@ -1,4 +1,4 @@
-import { success, failure } from '../..';
+import { success, failure } from '..';
 
 describe('isSuccess', () => {
   describe('called from Result', () => {

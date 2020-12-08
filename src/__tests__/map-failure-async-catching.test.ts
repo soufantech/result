@@ -1,4 +1,4 @@
-import { success, failure } from '../../dist';
+import { success, failure } from '..';
 
 beforeEach(() => {
   jest.clearAllMocks();

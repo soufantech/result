@@ -148,9 +148,23 @@ export class ResultPromise<S, F> implements PromiseLike<Result<S, F>> {
     return new ResultPromise(this.promise.then((r) => r.recover(recoverFn)));
   }
 
+  recoverAsync(recoverFn: (f: F) => PromiseLike<S>): ResultPromise<S, F> {
+    return new ResultPromise(
+      this.promise.then((r) => r.recoverAsync(recoverFn)),
+    );
+  }
+
   recoverCatching(recoverFn: (f: F) => S): ResultPromise<S, Error> {
     return new ResultPromise(
       this.promise.then((r) => r.recoverCatching(recoverFn)),
+    );
+  }
+
+  recoverAsyncCatching(
+    recoverFn: (f: F) => PromiseLike<S>,
+  ): ResultPromise<S, F> {
+    return new ResultPromise(
+      this.promise.then((r) => r.recoverAsyncCatching(recoverFn)),
     );
   }
 

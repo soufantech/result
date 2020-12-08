@@ -1,4 +1,5 @@
 import { Result, failure, success } from './result';
+import { ResultPromise } from './result-promise';
 
 /**
  * Converts the result of a promise into a result.
@@ -12,8 +13,10 @@ import { Result, failure, success } from './result';
  *
  * const user = result.getOrFail();
  */
-export function fromPromise<S, F>(s: Promise<S>): Promise<Result<S, F>> {
-  return s.then((h) => success<S, F>(h)).catch((c) => failure<S, F>(c));
+export function fromPromise<S, F>(s: PromiseLike<S>): Promise<Result<S, F>> {
+  return Promise.resolve(s)
+    .then((h) => success<S, F>(h))
+    .catch((c) => failure<S, F>(c));
 }
 
 /**
@@ -78,8 +81,8 @@ export function runCatching<S, F = Error>(run: () => S): Result<S, F> {
  * const httpResponse = responseResult.getOrFail(); // throws an error because promise was rejected.
  *
  */
-export function runCatchingAsync<S>(
-  run: () => Promise<S>,
-): Promise<Result<S, Error>> {
-  return fromPromise(run());
+export function runCatchingAsync<S, F = Error>(
+  run: () => PromiseLike<S>,
+): ResultPromise<S, F> {
+  return new ResultPromise(fromPromise(Promise.resolve(run).then((r) => r())));
 }

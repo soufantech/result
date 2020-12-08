@@ -36,6 +36,11 @@ Although they diverge in several aspects, the `Result` implementation of this mo
 - [Motivation](#motivation)
 - [Contents](#contents)
 - [Installation](#installation)
+- [Basic usage](#basic-usage)
+  - [Creation](#creation)
+  - [Unboxing](#unboxing-and-type-assertions)
+  - [Mapping](#mapping)
+  - [Streamlined async flow](#streamlined-async-flow)
 - [TypeScript and JavaScript support](#typescript-and-javascript-support)
 - [API](#api)
 - [Contributing](#contributing)
@@ -55,6 +60,185 @@ yarn add @soufantech/result
 ```console
 npm install @soufantech/result
 ```
+
+## Basic usage
+
+There may be many uses for the constructs in this library, from very simple ones to very sophisticated ones. Anyway, there is no single piece of functionality in it that cannot be gradually adopted. Below are some punctual and non-exhaustive usage examples (from basic to advanced) to help you efficiently land this library in your own project.
+
+### Creation
+
+Lets consider a simple function that validates a string for non alphabetic characters:
+
+```ts
+import { success, failure, Result } from '@soufantech/result';
+
+class ValidationError extends Error {}
+
+function validate(str: string): Result<string, ValidationError> {
+  return /^[a-zA-Z]*$/.test(str)
+    ? success(str)
+    : failure(new ValidationError('string contains non-alphabetic characters'));
+}
+```
+
+As seen above, the `failure` and `success` constructors can be used to build `Result` instances. `failure` will build a `FailureResult` and `success` will build a `SuccessResult`. These two types form the discriminated `Result` union type. Except for the `get` method, both types have pretty much the same interface (have the same methods), and can (and must) be used interchangeably.
+
+The first generic variable of the `Result` type is the type of the success value, and the second is the type of the failure value. In the example above, a `SuccessResult` is created with `success` to enclose a `string` and a `FailureResult` is created with `failure` to enclose an instance of `ValidationError`.
+
+`SuccessResult` and `FailureResult` must not be used directly. Their types must be always referred as the `Result` union, whether returning them from a function or receiving them as arguments. Especial guard functions `isSuccess` and `isFailure` are provided to discriminate them (see the section below on [Unboxing](#unboxing)).
+
+Apart from `success` and `failure`, there are other utility functions, like `runCatching`, that can create a `Result` for you.
+
+`runCatching` will run a synchronous function and return a `SuccessResult` with the returned value, unless the function throws, in which case `runCatching` will return a `FailureResult` enclosing the caught exception.
+
+```ts
+import fs from 'fs';
+import { runCatching } from '@soufantech/result';
+
+// res type is Result<string, Error>
+const res = runCatching(() => {
+  return fs.readFileSync('file.txt', 'utf-8');
+});
+```
+
+There is also an async version of `runCatching` called `runCatchingAsync`. See the section on [Streamlined async flow](#async-mappers-and-the-streamlined-async-flow) for more information on async operations.
+
+### Unboxing
+
+The `isFailure` and `isSuccess` type guards can be used to assert the correct type when calling the `get` function to unbox the enclosed value:
+
+```ts
+const res = validate('pass'); // success
+
+res.isSuccess(); // true
+res.isFailure(); // false
+
+if (res.isSuccess()) {
+  const value = res.get(); // value type is `string` ("pass")
+
+  // ...
+}
+```
+
+```ts
+const res = validate('f4!L'); // failure
+
+res.isSuccess(); // false
+res.isFailure(); // true
+
+if (res.isFailure()) {
+  const value = res.get(); // value type is `ValidationError`
+
+  // ...
+}
+```
+
+You can leverage the several `get*` methods to conditionally unbox the enclosed value in just one line:
+
+```ts
+const res = validate('f4!L'); // failure
+
+res.getOrNull(); // returns `null`
+res.getOrUndefined(); // returns `undefined`
+res.getOrDefault('Fails'); // returns "Fails"
+res.getOrElse((err) => err.message); // returns "string contains non-alphabetic characters"
+res.getOrThrow(); // throws the `ValidationError` instance
+```
+
+```ts
+const res = validate('pass'); // success
+
+res.getOrNull(); // returns "pass"
+res.getOrUndefined(); // returns "pass"
+res.getOrDefault('Fails'); // returns "pass"
+res.getOrElse((err) => err.message); // returns "pass"
+res.getOrThrow(); // returns "pass"
+```
+
+Another way to conditionally unbox the enclosed value is with the `fold` method. `fold` takes two functions as arguments: one to be executed on success (as the first argument), and one to be executed on failure (as the second argument). The value returned by `fold` will be the value returned by either of these functions.
+
+```ts
+const res = validate('pass'); // success
+
+res.fold(
+  () => 0,
+  () => 1,
+); // returns 0
+
+res.fold(
+  (str) => str.toUpperCase(),
+  (err) => err.message.toUpperCase().replace(/\s|-/g, '_'),
+); // returns "PASS"
+```
+
+```ts
+const res = validate('F4!L'); // failure
+
+res.fold(
+  () => 0,
+  () => 1,
+); // returns 1
+
+res.fold(
+  (str) => str.toUpperCase(),
+  (err) => err.message.toUpperCase().replace(/\s|-/g, '_'),
+); // returns "STRING_CONTAINS_NON_ALPHABETIC_CHARACTERS"
+```
+
+`fold` is conveniently used as a mapping function to convert from one `Result` type into another (see the section on [mapping](###mapping) for mapping functions):
+
+```ts
+// Type of res1 is `Result<number, string>`
+const res1 = success<number, string>(7);
+
+// Type of res2 is `Result<string, Error>`
+const res2 = res1.fold<Result<string, Error>>(
+  (s) => success(`number: ${s}`),
+  (f) => failure(new Error(f))
+);
+
+res2.getOrThrow(); // returns "number: 7";
+```
+
+```ts
+// Type of res1 is `Result<number, string>`
+const res1 = failure<number, string>('Not a number');
+
+// Type of res2 is `Result<string, Error>`
+const res2 = res1.fold<Result<string, Error>>(
+  (s) => success(`number: ${s}`),
+  (f) => failure(new Error(f))
+);
+
+res2.getOrThrow(); // throws `Error` with "Not a number" message
+```
+
+If all you care is for the *side-effects*, you can use the `onSuccess` and/or the `onFailure` methods to call a callback:
+
+```ts
+function printValidate(str: string): void {
+  validate('f4!L')
+    .onFailure((f) => {
+      console.error('FAILED:', f.message);
+    })
+    .onSuccess((s) => {
+      console.log('PASSED:', s);
+    });
+}
+
+printValidate('f4!L'); // Prints "FAILED: string contains non-alphabetic characters"
+printValidate('pass'); // Prints "PASSED: pass"
+```
+
+### Mapping
+
+Mapping methods are perhaps some of the most powerful constructs of `Result`, allowing you to conditionally transform the enclosed value (or even the `Result` itself) in a pipelined way. Mapping eliminates the need for many of the conditional statements (including exception throwing) and can be used to write whole programs, top to bottom. Nevertheless, caution is advised: the overuse of mapping can lead to programs that are hard to reason about (especially if the reader isn't well acquainted with functional programming) and memory overconsumption. That said, mapping may pay off really well (eliminating complex conditionals and guaranteeing the correct typing all along the way) if used in moderation or if the flow of your program describes a neat and unambiguous data pipeline.
+
+**WIP**: Examples coming soon (bare with us).
+
+### Streamlined async flow
+
+**WIP**: Examples coming soon (bare with us).
 
 ## TypeScript and JavaScript support
 

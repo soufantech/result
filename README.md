@@ -67,7 +67,7 @@ There may be many uses for the constructs in this library, from very simple ones
 
 ### Creation
 
-Lets consider a simple function that validates a string for non alphabetic characters:
+Let's consider a simple function that validates a string for non alphabetic characters:
 
 ```ts
 import { success, failure, Result } from '@soufantech/result';

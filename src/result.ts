@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { runCatching, fromPromise } from './result-utils';
+import { runCatching, runCatchingAsync, fromPromise } from './result-utils';
 import { ResultPromise } from './result-promise';
 
 export type Result<S, F> = SuccessResult<S, F> | FailureResult<S, F>;
@@ -134,6 +134,12 @@ export class SuccessResult<S, F> {
   }
 
   recoverAsync(_recoverFn: (f: F) => PromiseLike<S>): ResultPromise<S, F> {
+    return new ResultPromise<S, F>(this);
+  }
+
+  recoverAsyncCatching<E = Error>(
+    _recoverFn: (f: F) => PromiseLike<S>,
+  ): ResultPromise<S, F | E> {
     return new ResultPromise<S, F>(this);
   }
 
@@ -307,6 +313,14 @@ export class FailureResult<S, F> {
         SuccessResult.create<S, F>(s),
       ),
     );
+  }
+
+  recoverAsyncCatching<E = Error>(
+    recoverFn: (f: F) => PromiseLike<S>,
+  ): ResultPromise<S, F | E> {
+    return runCatchingAsync<S, E>(() => {
+      return recoverFn(this.value);
+    });
   }
 
   recoverCatching(recoverFn: (f: F) => S): Result<S, Error> {

@@ -133,6 +133,10 @@ export class SuccessResult<S, F> {
     return this;
   }
 
+  recoverAsync(_recoverFn: (f: F) => PromiseLike<S>): ResultPromise<S, F> {
+    return new ResultPromise<S, F>(this);
+  }
+
   recoverCatching(_recoverFn: (f: F) => S): Result<S, Error> {
     return (this as unknown) as Result<S, Error>;
   }
@@ -295,6 +299,14 @@ export class FailureResult<S, F> {
 
   recover(recoverFn: (f: F) => S): Result<S, F> {
     return SuccessResult.create<S, F>(recoverFn(this.value));
+  }
+
+  recoverAsync(recoverFn: (f: F) => PromiseLike<S>): ResultPromise<S, F> {
+    return new ResultPromise<S, F>(
+      Promise.resolve(recoverFn(this.value)).then((s) =>
+        SuccessResult.create<S, F>(s),
+      ),
+    );
   }
 
   recoverCatching(recoverFn: (f: F) => S): Result<S, Error> {

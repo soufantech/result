@@ -14,8 +14,16 @@
     "email": "fabio@soufan.com.br",
     "url": "https://github.com/fhpriamo"
   },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/soufantech/result.git"
+  },
+  "homepage": "https://github.com/soufantech/result#readme",
   "publishConfig": {
     "access": "public"
+  },
+  "bugs": {
+    "url" : "https://github.com/soufantech/result/issues"
   },
   "license": "MIT",
   "main": "dist/index.js",

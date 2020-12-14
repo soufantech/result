@@ -1,6 +1,6 @@
 {
   "name": "@soufantech/result",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "A feature-rich Result type for TypeScript and JavaScript",
   "keywords": [
     "result",
@@ -14,8 +14,16 @@
     "email": "fabio@soufan.com.br",
     "url": "https://github.com/fhpriamo"
   },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/soufantech/result.git"
+  },
+  "homepage": "https://github.com/soufantech/result#readme",
   "publishConfig": {
     "access": "public"
+  },
+  "bugs": {
+    "url" : "https://github.com/soufantech/result/issues"
   },
   "license": "MIT",
   "main": "dist/index.js",
